@@ -24,12 +24,44 @@ export const userApi = {
       .then((e) => {
         console.log('====DDDD login then', e);
         const data = e.data;
-        data.userInfo = {
-          account: acc,
-          name: acc + ' Man',
-          level: '5',
-          permissions: ['dashboard', 'profile', 'user', 'game'],
-          jwt: 'abc1234jwtnlasiofdso8sijsdoigfsirjoajf8.sgfuhsdg8f.sfgdsf09gsd09',
+        data.UserInfo = {
+          Account: acc,
+          Name: acc + ' Man',
+          Jwt: 'abc1234jwtnlasiofdso8sijsdoigfsirjoajf8.sgfuhsdg8f.sfgdsf09gsd09',
+          Permissions: [
+            {
+              FunctionName: 'SearchByBetID',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'SearchByPlayer',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'GameList',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'CurrencyList',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'RoleManagement',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'UserManagement',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'VendorManagement',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+            {
+              FunctionName: 'GameProviderManagement',
+              Permission: { Read: true, Create: true, Update: true },
+            },
+          ],
         };
         return data;
       })

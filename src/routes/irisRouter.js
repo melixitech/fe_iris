@@ -15,8 +15,6 @@ const Login = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Login.vue');
 const Register = () =>
   import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Register.vue');
-const Lock = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Lock.vue');
 
 let authPages = {
   path: '/',
@@ -32,11 +30,6 @@ let authPages = {
       path: '/register',
       name: 'Register',
       component: Register,
-    },
-    {
-      path: '/lock',
-      name: 'Lock',
-      component: Lock,
     },
   ],
 };
@@ -54,16 +47,29 @@ const routerA = new Router({
       name: 'home',
       redirect: '/dashboard',
       component: DashboardLayout,
-      meta: {
-        permissions: ['dashboard', 'profile', 'user', 'game'],
-      },
       children: [
         {
           path: 'dashboard',
           name: 'dashboard',
+          meta: {
+            isLogin: true,
+          },
+          components: { default: Starter },
+        },
+        {
+          path: 'search_by_bet',
+          name: 'search_by_bet',
           components: { default: Starter },
           meta: {
-            permissions: ['dashboard'],
+            permission: 'SearchByBetID',
+          },
+        },
+        {
+          path: 'search_by_player',
+          name: 'search_by_player',
+          components: { default: Starter },
+          meta: {
+            permission: 'SearchByPlayer',
           },
         },
       ],
@@ -82,19 +88,26 @@ const routerA = new Router({
 
 routerA.beforeEach((to, from, next) => {
   console.log(to.meta);
-  if (!to?.meta?.permissions) {
+  if (!to?.meta?.permission && !to?.meta?.isLogin) {
     next();
     return true;
   }
-  const permissions = to.meta.permissions;
+  const fnName = to.meta.permission;
   let flg = false;
-  if (!store.state?.userInfo?.permissions) {
+  if (
+    !store.state?.userInfo?.permissions ||
+    store.state.userInfo.permissions.length == 0
+  ) {
     console.log(3);
     location.hash = '/Login';
     return { name: 'Login' };
   }
-  permissions.forEach((c) => {
-    if (store.state.userInfo.permissions.includes(c)) flg = true;
+
+  if (to.meta.isLogin && store._wrappedGetters.isLogin) flg = true;
+  store.state.userInfo.permissions.forEach((c) => {
+    if (c.functionName == fnName && c.permission?.read == true) {
+      flg = true;
+    }
   });
   if (flg) {
     console.log(1);

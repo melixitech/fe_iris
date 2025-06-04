@@ -7,7 +7,6 @@ export const userInfo = {
   namespaced: false,
   state: {
     account: '',
-    level: '',
     name: '',
     jwt: '',
     permissions: [],
@@ -38,17 +37,28 @@ export const userInfo = {
       if (typeof objA !== 'object') return false;
       const acc = objA.account;
       const pwd = objA.password;
-      console.log('Account:' + acc + ' , ' + 'Password:' + pwd);
+      console.log('====DDDD Account:' + acc + ' , ' + 'Password:' + pwd);
       const res = await userApi.login(acc, pwd);
-      if (res && res.userInfo && res.userInfo.jwt) {
+      if (res && res.UserInfo && res.UserInfo.Jwt) {
         // 登入成功
         context.commit('updateUserInfo', {
-          account: res.userInfo.account,
-          level: res.userInfo.level,
-          name: res.userInfo.name,
-          jwt: res.userInfo.jwt,
-          permissions: res.userInfo.permissions,
+          account: res.UserInfo.Account,
+          name: res.UserInfo.Name,
+          jwt: res.UserInfo.Jwt,
+          permissions: res.UserInfo.Permissions.map((c) => {
+            return {
+              functionName: c.FunctionName,
+              permission: {
+                create: c.Permission.Create,
+                update: c.Permission.Update,
+                read: c.Permission.Read,
+              },
+            };
+          }),
         });
+
+        // 導引到所有用戶都有的 dashboard
+        location.hash = '/dashboard';
       }
     },
     logout(context) {
