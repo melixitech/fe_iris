@@ -58,7 +58,7 @@ export const userInfo = {
         });
 
         // 導引到所有用戶都有的 dashboard
-        location.hash = '/dashboard';
+        this.routerA.push('/dashboard')
       }
     },
     logout(context) {

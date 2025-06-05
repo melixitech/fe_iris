@@ -1,13 +1,13 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 // import DashboardLayout from 'src/pages/Layout/DashboardLayout.vue';
-// import DashboardLayout from './../pages/Starter/SampleLayout.vue';
-import DashboardLayout from '../pages/Main/MainLayout.vue';
+// import DashboardLayout from './../pages2/Starter/SampleLayout.vue';
+import DashboardLayout from '@/pages/Main/MainLayout.vue';
 import Starter from './../pages/Main/MainPage.vue';
 import AuthLayout from 'src/pages/Pages/AuthLayout.vue';
 // GeneralViews
 import NotFound from 'src/pages/GeneralViews/NotFoundPage.vue';
-import store from '../store/store';
+import store from '@/store/store';
 
 Vue.use(Router);
 
@@ -52,7 +52,7 @@ const routerA = new Router({
           path: 'dashboard',
           name: 'dashboard',
           meta: {
-            isLogin: true,
+            needLogin: true,
           },
           components: { default: Starter },
         },
@@ -86,35 +86,38 @@ const routerA = new Router({
   },
 });
 
-routerA.beforeEach((to, from, next) => {
+store.routerA = routerA;
+
+routerA.beforeEach(async (to, from, next) => {
   console.log(to.meta);
-  if (!to?.meta?.permission && !to?.meta?.isLogin) {
+  const perm = to?.meta?.permission;
+  const needLogin = to?.meta?.needLogin || !!perm;
+  if (!perm && !needLogin) {
+    // 沒有路由權限偵測必要
+    console.log('====DDDD 沒有路由權限偵測必要的路徑', to?.meta);
     next();
     return true;
   }
   const fnName = to.meta.permission;
   let flg = false;
-  if (
-    !store.state?.userInfo?.permissions ||
-    store.state.userInfo.permissions.length == 0
-  ) {
-    console.log(3);
-    location.hash = '/Login';
-    return { name: 'Login' };
+  if (!store.state?.userInfo?.permissions || store.state.userInfo.permissions.length == 0) {
+    console.log('====DDDD 需要權限但用戶沒有', to?.meta, store.state?.userInfo?.permissions);
+    routerA.push('/login')
+    return true;
   }
 
-  if (to.meta.isLogin && store._wrappedGetters.isLogin) flg = true;
+  if (to.meta.needLogin && store.getters.isLogin) flg = true;
   store.state.userInfo.permissions.forEach((c) => {
     if (c.functionName == fnName && c.permission?.read == true) {
       flg = true;
     }
   });
   if (flg) {
-    console.log(1);
+    console.log('====DDDD 用戶權限符合', to?.meta, store.state?.userInfo?.permissions);
     next();
   } else {
-    console.log(2);
-    location.hash = '/Login';
+    console.log('====DDDD 用戶權限不符合', to?.meta, store.state?.userInfo?.permissions);
+    routerA.push('/login')
   }
   return true;
 });
