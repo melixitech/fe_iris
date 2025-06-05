@@ -1,4 +1,6 @@
+// ============== Local Storage Tool ====================
 const LOCAL_STORAGE_KEY = 'IRIS_DATA';
+const KEY_USERINFO = 'userInfo';
 
 export const LStorage = {
   keyName(key) {
@@ -8,6 +10,7 @@ export const LStorage = {
     const name = this.keyName(key);
     let rt = localStorage.getItem(name);
     if (!rt) rt = '';
+    return rt;
   },
   readObj(key, defaultValue = {}) {
     let str = this.read(key);
@@ -41,5 +44,12 @@ export const LStorage = {
   delete(key) {
     const name = this.keyName(key);
     localStorage.removeItem(name);
+  },
+  constKey: {
+    KEY_USERINFO,
+  },
+  getJWT() {
+    const r = this.readObj(KEY_USERINFO);
+    return r.jwt || '';
   },
 };

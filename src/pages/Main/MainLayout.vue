@@ -2,11 +2,7 @@
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <notifications></notifications>
     <sidebar-fixed-toggle-button />
-    <side-bar
-      :background-color="sidebarBackground"
-      short-title="XG"
-      title="Xitech Gateway"
-    >
+    <side-bar :background-color="sidebarBackground" short-title="XG" title="Iris Hub">
       <template slot="links">
         <sidebar-item
           :link="{
@@ -16,16 +12,22 @@
           }"
         >
         </sidebar-item>
+        <sidebar-item :link="{ name: $t('sidebar.components'), icon: 'tim-icons icon-molecule-40' }">
+          <sidebar-item :link="{ name: $t('sidebar.buttons'), path: '/components/buttons' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.gridSystem'), path: '/components/grid-system' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.panels'), path: '/components/panels' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.sweetAlert'), path: '/components/sweet-alert' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.notifications'), path: '/components/notifications' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.icons'), path: '/components/icons' }"></sidebar-item>
+          <sidebar-item :link="{ name: $t('sidebar.typography'), path: '/components/typography' }"></sidebar-item>
+        </sidebar-item>
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
       <dashboard-navbar></dashboard-navbar>
       <router-view name="header"></router-view>
 
-      <div
-        :class="{ content: !$route.meta.hideContent }"
-        @click="toggleSidebar"
-      >
+      <div :class="{ content: !$route.meta.hideContent }" @click="toggleSidebar">
         <zoom-center-transition :duration="200" mode="out-in">
           <!-- your content here -->
           <router-view></router-view>

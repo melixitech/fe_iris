@@ -3,18 +3,18 @@ import Router from 'vue-router';
 // import DashboardLayout from 'src/pages/Layout/DashboardLayout.vue';
 // import DashboardLayout from './../pages2/Starter/SampleLayout.vue';
 import DashboardLayout from '@/pages/Main/MainLayout.vue';
-import Starter from './../pages/Main/MainPage.vue';
+import MainPage from './../pages/Main/MainPage.vue';
+// import MainPage from './../pages2/Dashboard/Dashboard.vue';
 import AuthLayout from 'src/pages/Pages/AuthLayout.vue';
 // GeneralViews
 import NotFound from 'src/pages/GeneralViews/NotFoundPage.vue';
 import store from '@/store/store';
+import pageConfig from '../cfg/pageConfig';
 
 Vue.use(Router);
 
-const Login = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Login.vue');
-const Register = () =>
-  import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Register.vue');
+const Login = () => import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Login.vue');
+const Register = () => import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Register.vue');
 
 let authPages = {
   path: '/',
@@ -33,6 +33,51 @@ let authPages = {
     },
   ],
 };
+// let componentsMenu = {
+//   path: '/components2',
+//   component: DashboardLayout,
+//   redirect: '/components2/buttons',
+//   name: 'Components2',
+//   children: [
+//     {
+//       path: 'buttons',
+//       name: 'Buttons',
+//       components: { default: Buttons },
+//     },
+//     {
+//       path: 'grid-system',
+//       name: 'Grid System',
+//       components: { default: GridSystem },
+//     },
+//     {
+//       path: 'panels',
+//       name: 'Panels',
+//       components: { default: Panels },
+//     },
+//     {
+//       path: 'sweet-alert',
+//       name: 'Sweet Alert',
+//       components: { default: SweetAlert },
+//     },
+//     {
+//       path: 'notifications',
+//       name: 'Notifications',
+//       components: { default: Notifications },
+//     },
+//     {
+//       path: 'icons',
+//       name: 'Icons',
+//       components: { default: Icons },
+//     },
+//     {
+//       path: 'typography',
+//       name: 'Typography',
+//       components: { default: Typography },
+//     },
+//   ],
+// };
+
+const dynamicRouters = pageConfig.getRouterItemsArray();
 
 const routerA = new Router({
   routes: [
@@ -54,12 +99,12 @@ const routerA = new Router({
           meta: {
             needLogin: true,
           },
-          components: { default: Starter },
+          components: { default: MainPage },
         },
         {
           path: 'search_by_bet',
           name: 'search_by_bet',
-          components: { default: Starter },
+          components: { default: MainPage },
           meta: {
             permission: 'SearchByBetID',
           },
@@ -67,13 +112,14 @@ const routerA = new Router({
         {
           path: 'search_by_player',
           name: 'search_by_player',
-          components: { default: Starter },
+          components: { default: MainPage },
           meta: {
             permission: 'SearchByPlayer',
           },
         },
       ],
     },
+    ...dynamicRouters,
     { path: '*', component: NotFound },
   ],
   linkActiveClass: 'active',
@@ -89,7 +135,6 @@ const routerA = new Router({
 store.routerA = routerA;
 
 routerA.beforeEach(async (to, from, next) => {
-  console.log(to.meta);
   const perm = to?.meta?.permission;
   const needLogin = to?.meta?.needLogin || !!perm;
   if (!perm && !needLogin) {
@@ -100,10 +145,21 @@ routerA.beforeEach(async (to, from, next) => {
   }
   const fnName = to.meta.permission;
   let flg = false;
+
+  if ((!store.state?.userInfo?.permissions || store.state.userInfo.permissions.length == 0) && !store.getters.isCheckedUserToken && from.name == null) {
+    // 尚未初始化完成直接 return false
+    console.log('====DDDD 需要權限但還沒初始化完成，先 pending', store.state?.userInfo?.permissions);
+    while (!store.getters.isCheckedUserToken) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 150);
+      });
+    }
+    console.log('====DDDD 需要權限初始化完成，繼續', store.state?.userInfo?.permissions);
+  }
   if (!store.state?.userInfo?.permissions || store.state.userInfo.permissions.length == 0) {
     console.log('====DDDD 需要權限但用戶沒有', to?.meta, store.state?.userInfo?.permissions);
-    routerA.push('/login')
-    return true;
+    if (from.path != '/login') routerA.push('/login');
+    return false;
   }
 
   if (to.meta.needLogin && store.getters.isLogin) flg = true;
@@ -117,7 +173,8 @@ routerA.beforeEach(async (to, from, next) => {
     next();
   } else {
     console.log('====DDDD 用戶權限不符合', to?.meta, store.state?.userInfo?.permissions);
-    routerA.push('/login')
+    if (from.path != '/login') routerA.push('/login');
+    return false;
   }
   return true;
 });
