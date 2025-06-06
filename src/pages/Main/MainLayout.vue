@@ -12,15 +12,12 @@
           }"
         >
         </sidebar-item>
-        <sidebar-item :link="{ name: $t('sidebar.components'), icon: 'tim-icons icon-molecule-40' }">
-          <sidebar-item :link="{ name: $t('sidebar.buttons'), path: '/components/buttons' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.gridSystem'), path: '/components/grid-system' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.panels'), path: '/components/panels' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.sweetAlert'), path: '/components/sweet-alert' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.notifications'), path: '/components/notifications' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.icons'), path: '/components/icons' }"></sidebar-item>
-          <sidebar-item :link="{ name: $t('sidebar.typography'), path: '/components/typography' }"></sidebar-item>
+        <sidebar-item v-for="(cat, ci) in sideItems" :key="ci" :link="cat.link">
+          <sidebar-item v-for="(p, pi) in cat.children" :key="pi" :link="p.link"></sidebar-item>
         </sidebar-item>
+        <div>
+          <div style="min-width: 100px; height: 100px">.</div>
+        </div>
       </template>
     </side-bar>
     <div class="main-panel" :data="sidebarBackground">
@@ -69,9 +66,27 @@ export default {
     SidebarFixedToggleButton,
     ZoomCenterTransition,
   },
+  computed: {
+    sideItems() {
+      const isLogin = this.$store.getters.isLogin;
+      const permMap = this.$store.getters.userPermissionMap;
+      const list = this.sideRawItems.map((c) => {
+        c.children = c.children.filter((item) => {
+          let rt = true;
+          const meta = item.meta;
+          if (!!meta.isLogin && !isLogin) rt = false;
+          if (!!meta.permission && !permMap.has(meta.permission)) rt = false;
+          return rt;
+        });
+        return c;
+      });
+      return list;
+    },
+  },
   data() {
     return {
-      sidebarBackground: 'vue', //vue|blue|orange|green|red|primary
+      sidebarBackground: 'primary', //vue|blue|orange|green|red|primary
+      sideRawItems: [],
     };
   },
   methods: {
@@ -97,6 +112,8 @@ export default {
   },
   mounted() {
     this.initScrollbar();
+    window.MainLayout = this;
+    this.sideRawItems = this.$xiPage.getSidebarItems();
   },
 };
 </script>

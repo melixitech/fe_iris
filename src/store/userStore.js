@@ -39,6 +39,15 @@ export const userInfo = {
     userInfo(state) {
       return state;
     },
+    userPermissionMap(state) {
+      const permissions = state.permissions;
+      const permMap = new Map();
+      permissions.forEach((p) => {
+        const fnName = p.functionName;
+        if (!!p.permission.read) permMap.set(fnName, p.permission);
+      });
+      return permMap;
+    },
   },
   mutations: {
     updateUserInfo(state, objA = {}) {

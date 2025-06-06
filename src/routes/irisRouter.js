@@ -12,6 +12,7 @@ import store from '@/store/store';
 import pageConfig from '../cfg/pageConfig';
 
 Vue.use(Router);
+Vue.use(pageConfig);
 
 const Login = () => import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Login.vue');
 const Register = () => import(/* webpackChunkName: "pages" */ 'src/pages/Pages/Register.vue');
@@ -33,49 +34,6 @@ let authPages = {
     },
   ],
 };
-// let componentsMenu = {
-//   path: '/components2',
-//   component: DashboardLayout,
-//   redirect: '/components2/buttons',
-//   name: 'Components2',
-//   children: [
-//     {
-//       path: 'buttons',
-//       name: 'Buttons',
-//       components: { default: Buttons },
-//     },
-//     {
-//       path: 'grid-system',
-//       name: 'Grid System',
-//       components: { default: GridSystem },
-//     },
-//     {
-//       path: 'panels',
-//       name: 'Panels',
-//       components: { default: Panels },
-//     },
-//     {
-//       path: 'sweet-alert',
-//       name: 'Sweet Alert',
-//       components: { default: SweetAlert },
-//     },
-//     {
-//       path: 'notifications',
-//       name: 'Notifications',
-//       components: { default: Notifications },
-//     },
-//     {
-//       path: 'icons',
-//       name: 'Icons',
-//       components: { default: Icons },
-//     },
-//     {
-//       path: 'typography',
-//       name: 'Typography',
-//       components: { default: Typography },
-//     },
-//   ],
-// };
 
 const dynamicRouters = pageConfig.getRouterItemsArray();
 
